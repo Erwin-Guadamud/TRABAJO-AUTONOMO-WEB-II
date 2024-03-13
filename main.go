@@ -12,12 +12,14 @@ import (
 	"strconv"
 )
 
-var usuarios []Usuario // Definición del slice para almacenar los usuarios
+var proveedores []Proveedor // Definición del slice para almacenar los proveedores
 
-type Usuario struct {
-	ID     int    `json:"id"`
-	Nombre string `json:"nombre"`
-	Email  string `json:"email"`
+type Proveedor struct {
+	ID       int    `json:"id"`
+	Nombre   string `json:"nombre"`
+	Direccion string `json:"direccion"`
+	Telefono string `json:"telefono"`
+	Contacto string `json:"contacto"`
 }
 
 func main() {
@@ -47,74 +49,86 @@ func main() {
 
 	
 	// Rutas
-	http.HandleFunc("/usuarios", obtenerUsuarios)
-	http.HandleFunc("/usuario", crearUsuario)
-	http.HandleFunc("/usuario/path", actualizarUsuario)
-	http.HandleFunc("/usuario/delete", eliminarUsuario)
+	http.HandleFunc("/proveedores", obtenerProveedores)
+	http.HandleFunc("/proveedor/created", crearProveedor)
+	http.HandleFunc("/proveedor/put", actualizarProveedor)
+	http.HandleFunc("/proveedor/delete", eliminarProveedor)
 
 	// Iniciar el servidor en el puerto 8080
 	fmt.Println("Servidor en ejecución en http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-// obtenerUsuarios obtiene todos los usuarios
-func obtenerUsuarios(w http.ResponseWriter, r *http.Request) {
+// obtenerProveedores obtiene todos los proveedores
+func obtenerProveedores(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(usuarios)
+	json.NewEncoder(w).Encode(proveedores)
 }
 
-// crearUsuario crea un nuevo usuario
-func crearUsuario(w http.ResponseWriter, r *http.Request) {
-	var usuario Usuario
-	_ = json.NewDecoder(r.Body).Decode(&usuario)
-	usuarios = append(usuarios, usuario)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(usuario)
-}
-
-// actualizarUsuario actualiza un usuario existente
-func actualizarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	idParam := r.URL.Path[len("/usuario/"):]
-	id, err := strconv.Atoi(idParam)
+// crearProveedor crea un nuevo proveedor
+func crearProveedor(w http.ResponseWriter, r *http.Request) {
+	var proveedor Proveedor
+	err := json.NewDecoder(r.Body).Decode(&proveedor)
 	if err != nil {
-		http.Error(w, "ID de usuario no válido", http.StatusBadRequest)
+		http.Error(w, "Error al decodificar la solicitud", http.StatusBadRequest)
 		return
 	}
 
-	var usuarioActualizado Usuario
-	_ = json.NewDecoder(r.Body).Decode(&usuarioActualizado)
+	// Verificar si todos los campos del proveedor están llenos
+	if proveedor.Nombre == "" || proveedor.Direccion == "" || proveedor.Telefono == "" || proveedor.Contacto == "" {
+		http.Error(w, "Todos los campos del proveedor son obligatorios", http.StatusBadRequest)
+		return
+	}
 
-	for index, usuario := range usuarios {
-		if usuario.ID == id {
-			usuarios[index] = usuarioActualizado
-			json.NewEncoder(w).Encode(usuarioActualizado)
+	proveedores = append(proveedores, proveedor)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(proveedor)
+}
+
+
+// actualizarProveedor actualiza un proveedor existente
+func actualizarProveedor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idParam := r.URL.Path[len("/proveedor/"):]
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		http.Error(w, "ID de proveedor no válido", http.StatusBadRequest)
+		return
+	}
+
+	var proveedorActualizado Proveedor
+	_ = json.NewDecoder(r.Body).Decode(&proveedorActualizado)
+
+	for index, proveedor := range proveedores {
+		if proveedor.ID == id {
+			proveedores[index] = proveedorActualizado
+			json.NewEncoder(w).Encode(proveedorActualizado)
 			return
 		}
 	}
 
-	http.Error(w, "Usuario no encontrado", http.StatusNotFound)
+	http.Error(w, "Proveedor no encontrado", http.StatusNotFound)
 }
 
-// eliminarUsuario elimina un usuario existente
-func eliminarUsuario(w http.ResponseWriter, r *http.Request) {
+// eliminarProveedor elimina un proveedor existente
+func eliminarProveedor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	idParam := r.URL.Path[len("/usuario/"):]
+	idParam := r.URL.Path[len("/proveedor/"):]
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		http.Error(w, "ID de usuario no válido", http.StatusBadRequest)
+		http.Error(w, "ID de proveedor no válido", http.StatusBadRequest)
 		return
 	}
 
-	for index, usuario := range usuarios {
-		if usuario.ID == id {
-			usuarios = append(usuarios[:index], usuarios[index+1:]...)
+	for index, proveedor := range proveedores {
+		if proveedor.ID == id {
+			proveedores = append(proveedores[:index], proveedores[index+1:]...)
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 	}
 
-	http.Error(w, "Usuario no encontrado", http.StatusNotFound)
+	http.Error(w, "Proveedor no encontrado", http.StatusNotFound)
 }
