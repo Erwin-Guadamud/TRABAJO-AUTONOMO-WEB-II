@@ -1,35 +1,27 @@
 package database
 
 import (
-    "fmt"
-    "os"
-    "TRABAJOAUTOWEB/models"
+	"fmt"
 
-    "gorm.io/driver/postgres"
-    "gorm.io/gorm"
+	"github.com/Erwin-Guadamud/TRABAJO-AUTONOMO-WEB-II/models"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func ConnectDatabase() error {
-    dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=prefer",
-        os.Getenv("DB_HOST"),
-        os.Getenv("DB_USER"),
-        os.Getenv("DB_PASSWORD"),
-        os.Getenv("DB_NAME"),
-        os.Getenv("DB_PORT"),
-    )
+func ConnectDatabase() {
+	dsn := "host=localhost user=postgres password=1234 dbname=gestor port=5432 sslmode=prefer"
+	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("Failed to connect to database!")
+	}
 
-    database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-    if err != nil {
-        return err
-    }
+	DB = database
+	fmt.Println("Database connection successfully opened")
+	MigrateTables()
 
-    DB = database
-    fmt.Println("Database connection successfully opened")
-    return nil
 }
-
 func MigrateTables() {
-    DB.AutoMigrate(&models.Actores{}, &models.ActoresPelicula{}, &models.Comentarios{}, &models.Genero{}, &models.Idioma{}, &models.PeliculaGenero{}, &models.Peliculas{}, &models.Usuario{})
+	DB.AutoMigrate(&models.Categoria{}, &models.Compra{}, &models.DetalleCompra{}, &models.Lote{}, &models.Producto{}, &models.Proveedor{})
 }
