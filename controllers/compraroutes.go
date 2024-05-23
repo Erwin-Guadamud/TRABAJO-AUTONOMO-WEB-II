@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/Erwin-Guadamud/TRABAJO-AUTONOMO-WEB-II/models"
 	"github.com/gofiber/fiber/v2"
-	"time"
 )
 
 // Controladores para Compra
@@ -31,17 +32,21 @@ func GetCompraByID(c *fiber.Ctx) error {
 
 // Crear una nueva compra
 func CreateCompra(c *fiber.Ctx) error {
-	var compra models.Compra
-	if err := c.BodyParser(&compra); err != nil {
+	var input struct {
+		Fecha       string `json:"Fecha"`
+		IDProveedor int    `json:"IDProveedor"`
+	}
+
+	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error al decodificar la solicitud"})
 	}
 
-	// Verificar si todos los campos obligatorios de la compra están llenos
-	if compra.Proveedor == "" || len(compra.Detalles) == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Todos los campos obligatorios de la compra deben estar llenos"})
+	fecha, err := time.Parse("2006-01-02", input.Fecha)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Formato de fecha inválido"})
 	}
 
-	compra.Fecha = time.Now()
+	compra := models.NewCompra(fecha, input.IDProveedor)
 
 	result := models.DB.Create(&compra)
 	if result.Error != nil {
