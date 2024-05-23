@@ -1,27 +1,31 @@
 package main
 
 import (
-    "log"
-    "trabajoautoweb/database"
-    "trabajoautoweb/routes"
-    "github.com/gofiber/fiber/v2"
+	"github.com/Erwin-Guadamud/TRABAJO-AUTONOMO-WEB-II/models"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"github.com/Erwin-Guadamud/TRABAJO-AUTONOMO-WEB-II/database"
+	"github.com/Erwin-Guadamud/TRABAJO-AUTONOMO-WEB-II/routes"
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-    // Conectarse a la base de datos
-    err := database.ConnectDatabase()
-    if err != nil {
-        log.Fatalf("Error al conectar a la base de datos: %v", err)
-    }
+	database.ConnectDatabase()
 
-    app := fiber.New()
+	// Establece la conexión a la base de datos
+	db, err := gorm.Open(postgres.Open("host=localhost user=postgres password=1234 dbname=gestor port=5432 sslmode=prefer"), &gorm.Config{})
+	if err != nil {
+		panic("Error al conectar a la base de datos: " + err.Error())
+	}
+	// Inicializa la conexión a la base de datos en el paquete models
+	models.InitDB(db)
 
-    // Configurar las rutas
-    routes.SetupRoutes(app)
+	app := fiber.New()
 
-    // Iniciar la aplicación
-    err = app.Listen(":3000")
-    if err != nil {
-        log.Fatalf("Error al iniciar la aplicación: %v", err)
-    }
+	// Configurar las rutas
+	routes.SetupRoutes(app)
+
+	// Iniciar la aplicación
+	app.Listen(":3000")
 }

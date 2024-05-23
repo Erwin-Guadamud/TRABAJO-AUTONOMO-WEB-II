@@ -1,33 +1,53 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-    "trabajoautoweb/models"
+	"github.com/Erwin-Guadamud/TRABAJO-AUTONOMO-WEB-II/controllers"
+	"github.com/gofiber/fiber/v2"
 )
 
-func SetupRoutes() {
-	router := gin.Default()
+func SetupRoutes(app *fiber.App) {
+	// Rutas para Categoría
+	app.Get("/categories", controllers.GetAllCategories)
+	app.Get("/categories/:id", controllers.GetCategoryByID)
+	app.Post("/categories", controllers.CreateCategory)
+	app.Put("/categories/:id", controllers.UpdateCategory)
+	app.Delete("/categories/:id", controllers.DeleteCategory)
 
-	// Rutas para el modelo de categoría
-	categoryRoutes := router.Group("/categories")
-	{
-		categoryRoutes.GET("/", controllers.GetAllCategories)
-		categoryRoutes.GET("/:id", controllers.GetCategoryByID)
-		categoryRoutes.POST("/", controllers.CreateCategory)
-		categoryRoutes.PUT("/:id", controllers.UpdateCategory)
-		categoryRoutes.DELETE("/:id", controllers.DeleteCategory)
-	}
+	// Rutas para Proovedores
+	app.Get("/provedor", controllers.GetAllProveedores)
+	app.Get("/provedor/:id", controllers.GetProveedorByID)
+	app.Post("/provedor", controllers.CreateProveedor)
+	app.Put("/provedor/:id", controllers.UpdateProveedor)
+	app.Delete("/provedor/:id", controllers.DeleteProveedor)
 
-	// Agrega aquí las rutas para otros modelos
-	//Rutas de productos
-	productRoutes := router.Group("/products")
-	{
-		productRoutes.GET("/", controllers.GetAllProducts)
-		productRoutes.GET("/:id", controllers.GetProductByID)
-		productRoutes.POST("/", controllers.CreateProduct)
-		productRoutes.PUT("/:id", controllers.UpdateProduct)
-		productRoutes.DELETE("/:id", controllers.DeleteProduct)
-	}
+	// Rutas para Productos
+	app.Get("/productos", controllers.GetAllProductos)
+	app.Get("/productos/:id", controllers.GetProductoByID)
+	app.Post("/productos", controllers.CreateProducto)
+	app.Put("/productos/:id", controllers.UpdateProducto)
+	app.Delete("/productos/:id", controllers.DeleteProducto)
 
-	router.Run(":8080")
+
+
+	// Rutas para Compras
+	app.Get("/compras", controllers.GetAllCompras)
+	app.Get("/compras/:id", controllers.GetCompraByID)
+	app.Post("/compras", controllers.CreateCompra)
+	app.Put("/compras/:id", controllers.UpdateCompra)
+	app.Delete("/compras/:id", controllers.DeleteCompra)
+
+	// Rutas para Detalles de Compra
+	app.Get("/detalles_compra", controllers.GetAllDetallesCompra)
+	app.Get("/detalles_compra/compra/:id", controllers.GetDetallesCompraByCompraID)
+	app.Post("/detalles_compra", controllers.CreateDetalleCompra)
+	app.Put("/detalles_compra/:id", controllers.UpdateDetalleCompra)
+	app.Delete("/detalles_compra/:id", controllers.DeleteDetalleCompra)
+
+		// Rutas para Lotes
+	app.Get("/lotes", controllers.GetAllLotes)
+	app.Get("/lotes/:id", controllers.GetLoteByID)
+	app.Post("/lotes", controllers.CreateLote)
+	app.Put("/lotes/:id", controllers.UpdateLote)
+	app.Delete("/lotes/:id", controllers.DeleteLote)
+
 }
